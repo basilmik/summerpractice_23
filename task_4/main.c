@@ -151,10 +151,10 @@ void del(Node* list, int key)
 }
 #else
 
-void add(int data)
+void add(int idx, int data)
 {
 
-    Node* last = *graph;
+    Node* last = graph[idx];
 
     while (last->next)
     {
@@ -167,17 +167,18 @@ void add(int data)
     last->next = new_last;
 }
 
-void del(int key)
+void del(int idx, int key)
 {
-    if ((*graph)->connect_to == key)
+    Node* cur = graph[idx];
+    if (cur->connect_to == key)
     {
         //Node* tmp = graph;
-        (*graph) = (*graph)->next;
+        cur = cur->next;
         //free(tmp);
     }
     else
     {
-        Node* tmp = *graph;
+        Node* tmp = cur;
         while (tmp)
         {
             if (tmp->next) // есть следующая вершина
