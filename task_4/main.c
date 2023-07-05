@@ -10,6 +10,66 @@ typedef struct Node_t
 } Node;
 
 
+Node* stack;
+
+Node* get_last()
+{
+    Node* cur = stack;
+    while (cur->next != NULL)
+    {
+        cur = cur->next;    
+    } 
+    return cur;
+}
+
+Node* get_prev_to_last()
+{
+    Node* cur = stack;
+    while (cur->next->next != NULL)
+    {
+        cur = cur->next;
+    }
+    return cur;
+}
+
+
+#if 1
+
+void push(int dat)
+{
+    if (stack == NULL)
+    {
+        stack = calloc(1, sizeof(Node));
+        stack->connect_to = dat;
+        stack->next = NULL;
+    }
+    else
+    {
+        Node* new_el = calloc(1, sizeof(Node));
+        new_el->connect_to = dat;
+        new_el->next = NULL;
+        Node* last = get_last();
+
+        last->next = new_el;
+    }
+}
+
+
+int pop()
+{
+    Node* last = get_last();
+    Node* _new_last = get_prev_to_last();
+    
+    int value = peek(last);
+
+    free(last);
+    _new_last->next = NULL;
+
+    return value;
+}
+
+#else
+
 void push(Node* st, int dat)
 {
     Node* el = calloc(1, sizeof(Node));
@@ -28,6 +88,9 @@ int pop(Node* st)
     return value;
 }
 
+#endif
+
+
 int peek(Node* st)
 {
     return st->connect_to;
@@ -35,7 +98,10 @@ int peek(Node* st)
 
 
 
+Node** graph;   // ћассив списков смежности
+int vertex = 1; // ѕерва€ вершина
 
+#if 0
 void add(Node* list, int data)
 {
    //if (&list == NULL)
@@ -65,7 +131,7 @@ void del(Node* list, int key)
     {
         Node* tmp = list;
         list = list->next;
-        free( tmp);
+        //free(tmp);
     }
     else
     {
@@ -79,10 +145,56 @@ void del(Node* list, int key)
                     tmp->next = tmp->next->next;
                     free( tmp2);
                 }
+            *(&tmp) = tmp->next;
+        }
+    }
+}
+#else
+
+void add(int data)
+{
+
+    Node* last = *graph;
+
+    while (last->next)
+    {
+        last = last->next;
+    }
+
+    Node* new_last = calloc(1, sizeof(Node));
+    new_last->connect_to = data;
+    new_last->next = NULL;
+    last->next = new_last;
+}
+
+void del(int key)
+{
+    if ((*graph)->connect_to == key)
+    {
+        //Node* tmp = graph;
+        (*graph) = (*graph)->next;
+        //free(tmp);
+    }
+    else
+    {
+        Node* tmp = *graph;
+        while (tmp)
+        {
+            if (tmp->next) // есть следующа€ вершина
+                if (tmp->next->connect_to == key) // и она искома€
+                {
+                    Node* tmp2 = tmp->next;
+                    tmp->next = tmp->next->next;
+                    free(tmp2);
+                }
             tmp = tmp->next;
         }
     }
 }
+
+#endif
+
+
 
 int is_euler(Node** gr, int num)
 {
@@ -109,8 +221,6 @@ int is_euler(Node** gr, int num)
 }
 
 
-Node** graph;   // ћассив списков смежности
-int vertex = 1; // ѕерва€ вершина
 
 FILE* fi;
 FILE* fo;
@@ -129,6 +239,7 @@ void print_graph_one(Node* _node)
     }
     printf("\n");
 }
+
 void print_graph(Node** _graph, int _vn)
 {
     for (int i = 0; i < _vn; i++)
@@ -153,21 +264,23 @@ void print_stack(Node* _stack_ptr)
 
 void find_euler_cycle(Node** gr)
 {
-    Node* stack = NULL; // —тек дл€  пройденных вершин
+
+    stack = NULL;
+
     int v = vertex; // 1€ вершина (произвольна€)
     int u;
     print_stack(stack);
-    push(stack, v); //сохран€ем ее в стек
+    push(v); //сохран€ем ее в стек
     print_stack(stack);
 
     while (stack)
     {
-        v = peek(stack); // текуща€ вершина
+        v = peek(get_last()); // текуща€ вершина
 
         if (!gr[v]) // если нет инцидентных ребер
         {
             print_stack(stack);
-            v = pop(stack);
+            v = pop();
             fprintf(fo, "!%d\ ", v);
             printf("pop: !%d\n", v);
         }
@@ -175,12 +288,14 @@ void find_euler_cycle(Node** gr)
         {
             print_stack(stack);
             u = gr[v]->connect_to;
-            push(stack, u);  //проходим в следующую вершину
+            push(u);  //проходим в следующую вершину
             print_stack(stack);
-
+            print_graph(graph, 5);
             del(gr[v], u);
+            print_graph(graph, 5);
             del(gr[u], v); //удал€ем пройденное ребро
-
+            printf("graph:\n");
+            print_graph(graph, 5);
         }
     }
 }
@@ -218,7 +333,7 @@ int main()
         graph[i] = NULL;
        
     }
-    //print_graph(graph, vertex_num);
+    
 
     for (int i = 0; i < vertex_num; i++)
     {
@@ -233,7 +348,7 @@ int main()
                 {
                     graph[i] = calloc(1, sizeof(Node));
                     graph[i]->connect_to = j;
-                    graph[i]->next = 0;
+                    graph[i]->next = NULL;
                 }
                 else
                     add(graph[i], j);
