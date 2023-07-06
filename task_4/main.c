@@ -25,6 +25,9 @@ Node* get_last()
 Node* get_prev_to_last()
 {
     Node* cur = stack;
+    if (cur->next == NULL)
+        return NULL;
+    
     while (cur->next->next != NULL)
     {
         cur = cur->next;
@@ -63,7 +66,10 @@ int pop()
     int value = peek(last);
 
     free(last);
-    _new_last->next = NULL;
+    if (_new_last != NULL)
+        _new_last->next = NULL;
+    else
+        stack = NULL;
 
     return value;
 }
@@ -173,7 +179,7 @@ void del(int idx, int key)
     if (cur->connect_to == key)
     {
         //Node* tmp = graph;
-        cur = cur->next;
+        graph[idx] = graph[idx]->next;
         //free(tmp);
     }
     else
@@ -263,7 +269,7 @@ void print_stack(Node* _stack_ptr)
     printf("\n");
 }
 
-void find_euler_cycle(Node** gr)
+void find_euler_cycle()
 {
 
     stack = NULL;
@@ -278,23 +284,31 @@ void find_euler_cycle(Node** gr)
     {
         v = peek(get_last()); // текущая вершина
 
-        if (!gr[v]) // если нет инцидентных ребер
+        if (!graph[v]) // если нет инцидентных ребер
         {
             print_stack(stack);
             v = pop();
-            fprintf(fo, "!%d\ ", v);
-            printf("pop: !%d\n", v);
+            fprintf(fo, "%d\ ", v);
+            printf("pop: %d\n", v);
         }
         else
         {
             print_stack(stack);
-            u = gr[v]->connect_to;
+
+            u = graph[v]->connect_to;
+
             push(u);  //проходим в следующую вершину
+
             print_stack(stack);
+
             print_graph(graph, 5);
-            del(gr[v], u);
+
+            del(v, u);
+
             print_graph(graph, 5);
-            del(gr[u], v); //удаляем пройденное ребро
+
+            del(u, v); //удаляем пройденное ребро
+
             printf("graph:\n");
             print_graph(graph, 5);
         }
@@ -352,10 +366,10 @@ int main()
                     graph[i]->next = NULL;
                 }
                 else
-                    add(graph[i], j);
+                    add(i, j);
                 if (i == j)
                 {
-                    add(graph[i], j);
+                    add(i, j);
                 }
             }
 
