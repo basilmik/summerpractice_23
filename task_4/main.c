@@ -269,16 +269,17 @@ void print_stack(Node* _stack_ptr)
     printf("\n");
 }
 
-void find_euler_cycle()
+void find_euler_cycle(int _from_vertex)
 {
 
     stack = NULL;
 
-    int v = vertex; // 1я вершина (произвольная)
+    int v = _from_vertex; // 1я вершина 
+
     int u;
-    print_stack(stack);
+    //print_stack(stack);
     push(v); //сохраняем ее в стек
-    print_stack(stack);
+    //print_stack(stack);
 
     while (stack)
     {
@@ -286,38 +287,40 @@ void find_euler_cycle()
 
         if (!graph[v]) // если нет инцидентных ребер
         {
-            print_stack(stack);
+            //print_stack(stack);
             v = pop();
             fprintf(fo, "%d\ ", v);
-            printf("pop: %d\n", v);
+            printf("%d\n", v);
         }
         else
         {
-            print_stack(stack);
+            //print_stack(stack);
 
             u = graph[v]->connect_to;
 
             push(u);  //проходим в следующую вершину
 
-            print_stack(stack);
+            //print_stack(stack);
 
-            print_graph(graph, 5);
+            //print_graph(graph, 5);
 
             del(v, u);
 
-            print_graph(graph, 5);
+            //print_graph(graph, 5);
 
             del(u, v); //удаляем пройденное ребро
 
-            printf("graph:\n");
-            print_graph(graph, 5);
+            //printf("graph:\n");
+            //print_graph(graph, 5);
         }
     }
 }
 
 int main()
 {
-    int vertex_num;
+    int vertex_num = 0;
+    int edges_num = 0;
+    int start = 0;
     int val;// Текущее значение
 
     fi = fopen("config.txt", "r");
@@ -334,19 +337,50 @@ int main()
         return (-1);
     }
 
-    fscanf(fi, "%d", &vertex_num);
+    fscanf(fi, "%d %d %d", &vertex_num, &edges_num, &start);
+    printf("%d %d %d\n", vertex_num, edges_num, start);
+
+    int* arr = calloc(vertex_num*vertex_num, sizeof(int));
+    //for (int i = 0; i < vertex_num; i++)
+    //{
+    //    for (int j = 0; j < vertex_num; j++)
+    //    {
+    //        arr[i + j * vertex_num] = calloc(1, sizeof(int));
+    //        arr[i + j * vertex_num] = 0;
+    //    }
+    //}
+
+    for (int i = 0; i < edges_num; i++)
+    {
+        int fst = 0, snd = 0;
+        fscanf(fi, "%d %d", &fst, &snd);
+        printf("%d %d\n", fst, snd);
+        
+        arr[fst + snd * vertex_num] = 1;
+        arr[snd + fst * vertex_num] = 1;
+
+    }
+
+    for (int i = 0; i < vertex_num; i++)
+    {
+        for (int j = 0; j < vertex_num; j++)
+        {
+            printf("%d ", arr[i + j * vertex_num]);// = calloc(1, sizeof(int));
+            
+        }
+        printf("\n");
+    }
+
 
     graph = (Node**)malloc(vertex_num * sizeof(Node*));
     if (graph == NULL)
     {
         return -1;
-
     }
     
     for (int i = 0; i < vertex_num; i++)
     {
-        graph[i] = NULL;
-       
+        graph[i] = NULL;      
     }
     
 
@@ -354,8 +388,8 @@ int main()
     {
         for (int j = 0; j < vertex_num; j++)
         {
-            fscanf(fi, "%d", &val);
 
+            val = arr[i + j * vertex_num];
             if (val)
             {
                 
@@ -377,10 +411,11 @@ int main()
         }
     }
 
-    print_graph(graph, vertex_num);
+    //print_graph(graph, vertex_num);
 
+ 
     if (is_euler(graph, vertex_num))
-        find_euler_cycle(graph);
+        find_euler_cycle(start);
     else
         fprintf(fo, "Граф не является эйлеровым.");
 
