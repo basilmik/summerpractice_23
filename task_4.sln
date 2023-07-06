@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "task_4", "task_4\task_4.vcxproj", "{1F2BC2BB-ECAE-444E-89BB-8861A087B564}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7830C500-50A5-4F19-8588-742AC9B32B47}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libwinbgi", "libwinbgi\libwinbgi.vcxproj", "{DAF4CC7E-F3CB-43AC-A07B-C5B6B9A4C32C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +25,12 @@ Global
 		{1F2BC2BB-ECAE-444E-89BB-8861A087B564}.Release|x64.Build.0 = Release|x64
 		{1F2BC2BB-ECAE-444E-89BB-8861A087B564}.Release|x86.ActiveCfg = Release|Win32
 		{1F2BC2BB-ECAE-444E-89BB-8861A087B564}.Release|x86.Build.0 = Release|Win32
+		{DAF4CC7E-F3CB-43AC-A07B-C5B6B9A4C32C}.Debug|x64.ActiveCfg = Debug|Win32
+		{DAF4CC7E-F3CB-43AC-A07B-C5B6B9A4C32C}.Debug|x86.ActiveCfg = Debug|Win32
+		{DAF4CC7E-F3CB-43AC-A07B-C5B6B9A4C32C}.Debug|x86.Build.0 = Debug|Win32
+		{DAF4CC7E-F3CB-43AC-A07B-C5B6B9A4C32C}.Release|x64.ActiveCfg = Release|Win32
+		{DAF4CC7E-F3CB-43AC-A07B-C5B6B9A4C32C}.Release|x86.ActiveCfg = Release|Win32
+		{DAF4CC7E-F3CB-43AC-A07B-C5B6B9A4C32C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

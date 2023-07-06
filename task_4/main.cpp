@@ -1,7 +1,14 @@
 #define _CRT_SECURE_NO_WARNINGS
-
+#include "../libwinbgi/src/graphics.h"
 #include <malloc.h>
 #include <stdio.h>
+#include "math.h"
+#include <windows.h> 
+
+#define X_ZERO 200
+#define Y_ZERO 200
+#define RAD 100
+
 
 typedef struct Node_t
 {
@@ -79,19 +86,23 @@ void push(int dat)
 {
     if (stack == NULL)
     {
-        stack = calloc(1, sizeof(Node));
+        stack = (Node*)calloc(1, sizeof(Node));
         stack->connect_to = dat;
         stack->next = NULL;
     }
     else
     {
-        Node* new_el = calloc(1, sizeof(Node));
+        Node* new_el = (Node*)calloc(1, sizeof(Node));
         new_el->connect_to = dat;
         new_el->next = NULL;
         Node* last = get_last();
 
         last->next = new_el;
     }
+}
+int peek(Node* st)
+{
+    return st->connect_to;
 }
 
 int pop()
@@ -110,10 +121,6 @@ int pop()
     return value;
 }
 
-int peek(Node* st)
-{
-    return st->connect_to;
-}
 
 
 
@@ -129,7 +136,7 @@ void add(int idx, int data)
         last = last->next;
     }
 
-    Node* new_last = calloc(1, sizeof(Node));
+    Node* new_last = (Node*)calloc(1, sizeof(Node));
     new_last->connect_to = data;
     new_last->next = NULL;
     last->next = new_last;
@@ -163,6 +170,34 @@ void del(int idx, int key)
 FILE* fi;
 FILE* fo;
 
+int* found_path;
+int stack_size = 0;
+
+int find_stack_size()
+{
+    stack_size = 0;
+    Node* ptr = stack;
+    while (ptr != NULL)
+    {
+        ptr = ptr->next;
+        stack_size++;
+    }
+
+    return stack_size;
+}
+
+void copy_stack_to_buf()
+{
+    found_path = (int*)calloc(stack_size, sizeof(int));
+
+    for (int i = 0; i < stack_size; i++)
+    {
+        found_path[i] = pop();
+    }
+
+}
+
+
 int is_euler(int _v_num)
 {
     int count;
@@ -187,7 +222,6 @@ int is_euler(int _v_num)
     return 1;
 }
 
-
 void find_euler_cycle(int _from_vertex)
 {
     stack = NULL;
@@ -204,9 +238,12 @@ void find_euler_cycle(int _from_vertex)
 
         if (!graph[v]) // если нет инцидентных ребер
         {    
-            v = pop();
+            find_stack_size();
+            copy_stack_to_buf();
+            /*v = pop();
             fprintf(fo, "%d\ ", v);
-            printf("%d\n", v);
+            printf("%d\n", v);*/
+            return;
         }
         else
         {
@@ -220,6 +257,139 @@ void find_euler_cycle(int _from_vertex)
         }
     }
 }
+
+
+float* map;
+
+int init_map(int _v_num)
+{
+    map = (float*)calloc(_v_num * 2, sizeof(float)); //  0 - x, 1 - y
+    if (map == NULL)
+        return -1;
+    
+    float deg_delta = 360.0 / (float)_v_num;
+    float alpha = 0;
+
+    for (int i = 0; i < _v_num; i++)
+    {
+        
+        printf("alpha = %f\n", alpha);
+
+        map[i * 2 + 0] = X_ZERO + RAD * cos((double)alpha * 0.017); // x
+        map[i * 2 + 1] = Y_ZERO + RAD * sin((double)alpha * 0.017); // y
+
+        alpha += deg_delta;
+        
+    }
+
+    return 0;
+
+}
+
+void print_map_coordinates(int _v_num)
+{
+    for (int i = 0; i < _v_num; i++)
+    {
+        printf("%f %f\n", map[i * 2 + 0], map[i * 2 + 1]);
+        
+    }
+}
+
+
+int* arr;
+
+void drav_points(int _v_num, int _st)
+{
+
+    for (int i = 0; i < _v_num; i++)
+    {
+        char message[4];
+        if (i == _st) setcolor(15);
+        else
+        setcolor(7);
+        
+        sprintf_s(message, "%d", i);
+        outtextxy(map[i * 2 + 0], map[i * 2 + 1], message);
+    }
+}
+
+void draw_connect(int _v_num)
+{
+    
+    setcolor(12);
+    setlinestyle(SOLID_LINE, 0, 1);
+    for (int i = 0; i < _v_num; i++)
+    for (int j = 0; j < _v_num; j++)
+    { 
+        int val = arr[i + j * _v_num];
+        if (val == 1)
+        {
+            line(map[i * 2 + 0], map[i * 2 + 1], 
+                map[j * 2 + 0], map[j * 2 + 1]);          
+        }
+    }
+}
+
+void draw_path(int _v_num)
+{
+    setcolor(13);
+    setlinestyle(SOLID_LINE, 0, 3);
+    int cur = 0;
+    int prev = found_path[0];
+    for (int i = 1; i < stack_size; i++)
+    {
+        cur = found_path[i];
+        
+        line(map[cur * 2 + 0], map[cur * 2 + 1],
+            map[prev * 2 + 0], map[prev * 2 + 1]);
+        prev = cur;
+        Sleep(1000);
+    }
+
+}
+
+
+
+void draw_m_graph(int _v_num, int _st)
+{
+    initwindow(1000, 700);
+
+    while (true)
+    {
+        clearviewport();
+        drav_points(_v_num, _st);
+        
+        draw_connect(_v_num);
+        Sleep(1500);
+        draw_path(_v_num);
+
+    }
+
+    closegraph();
+}
+
+
+void to_graph(int _v_num, int _st)
+{
+    init_map(_v_num);
+    draw_m_graph(_v_num, _st);
+}
+
+void message_not_euler()
+{
+    
+    initwindow(700, 300);
+    char message[] = "no euler cycle\0";
+    setcolor(15);
+
+
+    sprintf_s(message, "%s", message);
+    settextstyle(0, 0,4);
+    outtextxy(20, 30, message);
+    getch();
+    closegraph();
+}
+
 
 int main()
 {
@@ -247,7 +417,7 @@ int main()
     printf("%d %d %d\n", vertex_num, edges_num, start);
 
 
-    int* arr = calloc(vertex_num*vertex_num, sizeof(int));
+    arr = (int*)calloc(vertex_num*vertex_num, sizeof(int));
  
     for (int i = 0; i < edges_num; i++)
     {
@@ -291,7 +461,7 @@ int main()
                 
                 if (graph[i] == NULL)
                 {
-                    graph[i] = calloc(1, sizeof(Node));
+                    graph[i] = (Node*)calloc(1, sizeof(Node));
                     graph[i]->connect_to = j;
                     graph[i]->next = NULL;
                 }
@@ -308,15 +478,18 @@ int main()
         }
     }
 
- 
+   
     if (is_euler(vertex_num))
     {
         find_euler_cycle(start);
     }
     else
     {
-        fprintf(fo, "Граф не является эйлеровым.");
+        message_not_euler();
     }
+
+
+    to_graph(vertex_num, start);
 
     return(0);
 }
