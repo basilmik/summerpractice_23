@@ -18,6 +18,7 @@ typedef struct Node_t
 
 
 
+
 void print_node(Node* _node)
 {
     printf("%d -> ", _node->connect_to);
@@ -381,8 +382,6 @@ void message_not_euler()
     initwindow(700, 300);
     char message[] = "no euler cycle\0";
     setcolor(15);
-
-
     sprintf_s(message, "%s", message);
     settextstyle(0, 0,4);
     outtextxy(20, 30, message);
